@@ -1,3 +1,4 @@
+import { validateTasks } from "./domain.js";
 const listDom = document.getElementById("lista")
 const submitBtn = document.getElementById("submitbtn")
 const filterCheckboxes = document.querySelectorAll('input[type="checkbox"]');       
