@@ -226,4 +226,21 @@ body > label {
     margin-top: 12px;
     font-size: 13px;
     color: #666;
+    min-height: 16px;
+}
+
+#importStatus.success {
+    color: #238636;
+}
+
+#importStatus.error {
+    color: #de3b3b;
+}
+
+#importStatus.loading {
+    color: #666;
+}
+
+.errorContainer {
+    color: #de3b3b;
 }

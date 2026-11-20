@@ -25,6 +25,7 @@
         <h3>Import zgłoszeń</h3>
 
         <label for="importFile">Wybierz plik JSON:</label>
+
         <input
             type="file"
             id="importFile"
@@ -35,7 +36,7 @@
             Importuj lokalny JSON
         </button>
 
-        <p id="importStatus"></p>
+        <p id="importStatus" role="status" aria-live="polite"></p>
     </section>
 
     <div class="filters-container">
@@ -46,7 +47,7 @@
         <label><input id="done" type="checkbox"> Done</label>
     </div>
 
-    <div class="errorContainer" id="errorContainer"></div>
+    <div class="errorContainer" id="errorContainer" role="alert"></div>
 
     <div class="komunikat" id="komunikat">
         <p id="ilosc"></p>
