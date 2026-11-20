@@ -2,6 +2,9 @@
 import { validateTasks } from "./domain.js";
 import { loadTasks, saveTasks } from "./storage.js";
 
+const importFile = document.getElementById("importFile");
+const importStatus = document.getElementById("importStatus");
+
 const listDom = document.getElementById("lista");
 const submitBtn = document.getElementById("submitbtn");
 const filterCheckboxes = document.querySelectorAll('input[type="checkbox"]');
@@ -172,3 +175,26 @@ submitBtn.addEventListener("click", (e) => {
 });
 
 filtering();
+
+importFile.addEventListener("change", async () => {
+    const file = importFile.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    try {
+        const text = await file.text();
+
+        console.log("Zawartość pliku:", text);
+
+        importStatus.textContent = "Plik odczytany poprawnie!";
+        importStatus.style.color = "green";
+
+    } catch (error) {
+        console.error("Błąd odczytu pliku:", error);
+
+        importStatus.textContent = "Nie udało się odczytać pliku!";
+        importStatus.style.color = "red";
+    }
+});

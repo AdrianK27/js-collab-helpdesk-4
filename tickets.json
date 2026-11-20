@@ -1,0 +1,21 @@
+
+[
+    {
+        "id": "101",
+        "title": "Problem z komputerem",
+        "status": "new",
+        "priority": "high"
+    },
+    {
+        "id": "102",
+        "title": "Nie działa drukarka",
+        "status": "doing",
+        "priority": "normal"
+    },
+    {
+        "id": "103",
+        "title": "Problem z internetem",
+        "status": "done",
+        "priority": "low"
+    }
+]
