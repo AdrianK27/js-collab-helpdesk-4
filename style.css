@@ -335,3 +335,39 @@ body.import-busy .import-container {
     display: none;
 }
 
+button,
+input,
+select {
+    font-family: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 2px solid #777;
+    outline-offset: 2px;
+}
+
+#importLocalBtn,
+#submitbtn {
+    transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.import-container,
+.filters-container,
+form {
+    min-width: 0;
+}
+
+#lista li {
+    overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+    }
+}
+
