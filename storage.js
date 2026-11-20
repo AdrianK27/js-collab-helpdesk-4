@@ -1,4 +1,6 @@
 
+import { validateTasks } from "./domain.js";
+
 const STORAGE_KEY = "school-helpdesk-tasks";
 
 export function saveTasks(tasks) {
@@ -12,11 +14,19 @@ export function saveTasks(tasks) {
 }
 
 export function loadTasks() {
-    const savedData = localStorage.getItem(STORAGE_KEY);
+    try {
+        const savedData = localStorage.getItem(STORAGE_KEY);
 
-    if (savedData === null) {
-        return [];
+        if (savedData === null) {
+            return [];
+        }
+
+        const parsedData = JSON.parse(savedData);
+
+        return validateTasks(parsedData);
+
+    } catch (error) {
+        console.error("Błąd odczytu danych:", error);
+        throw error;
     }
-
-    return JSON.parse(savedData);
 }

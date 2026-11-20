@@ -2,7 +2,7 @@
 export const MAX_TASKS = 1000;
 
 export const STATUSES = ["new", "doing", "done"];
-export const PRIORITIES = ["low", "normal", "high"];
+export const PRIORITIES = ["low", "mid", "high"];
 
 export function validateTasks(data) {
     if (!Array.isArray(data)) {
