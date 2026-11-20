@@ -11,6 +11,8 @@ const filterCheckboxes = document.querySelectorAll('input[type="checkbox"]');
 
 let tasks = [];
 
+let isImporting = false;
+
 try {
     tasks = loadTasks();
 } catch (error) {
@@ -58,6 +60,10 @@ function filtering() {
 }
 
 const addTask = (title, priority) => {
+    if (isImporting) {
+    return;
+    }
+
     if (!title || title.trim() === "") {
         console.error("Title cant be empty");
         return;
@@ -83,6 +89,11 @@ const addTask = (title, priority) => {
 };
 
 const changeStatus = (id, newStatus) => {
+
+    if (isImporting) {
+    return;
+    }
+
     const task = tasks.find(task => task.id === id);
 
     if (!task) {
@@ -176,7 +187,13 @@ submitBtn.addEventListener("click", (e) => {
 
 filtering();
 
+
 importFile.addEventListener("change", async () => {
+
+    if (isImporting) {
+        return;
+    }
+
     const file = importFile.files[0];
 
     if (!file) {
@@ -186,15 +203,39 @@ importFile.addEventListener("change", async () => {
     try {
         const text = await file.text();
 
-        console.log("Zawartość pliku:", text);
+        const data = JSON.parse(text);
 
-        importStatus.textContent = "Plik odczytany poprawnie!";
+        const validatedTasks = validateTasks(data);
+
+        const confirmed = confirm(
+            "Czy na pewno chcesz zastąpić aktualną listę zgłoszeń?"
+        );
+
+        if (!confirmed) {
+            importStatus.textContent = "Import anulowany.";
+            return;
+        }
+
+        const previousTasks = tasks;
+
+        tasks = validatedTasks;
+
+        if (!saveTasks(tasks)) {
+            tasks = previousTasks;
+            throw new Error("Nie udało się zapisać danych!");
+        }
+
+        filtering();
+
+        importStatus.textContent = "Import zakończony pomyślnie!";
         importStatus.style.color = "green";
 
-    } catch (error) {
-        console.error("Błąd odczytu pliku:", error);
+        console.log("Poprawne zgłoszenia:", validatedTasks);
 
-        importStatus.textContent = "Nie udało się odczytać pliku!";
+    } catch (error) {
+        console.error("Błąd importu:", error);
+
+        importStatus.textContent = error.message;
         importStatus.style.color = "red";
     }
 });
