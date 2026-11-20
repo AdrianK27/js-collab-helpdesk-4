@@ -1,47 +1,40 @@
+
 import { validateTasks } from "./domain.js";
-const listDom = document.getElementById("lista")
-const submitBtn = document.getElementById("submitbtn")
-const filterCheckboxes = document.querySelectorAll('input[type="checkbox"]');       
+import { loadTasks, saveTasks } from "./storage.js";
 
-const tasks = [
-    {
-        id: "1",
-        title: "Coding",
-        status: "new",
-        priority: "high"
-    },
-    {
-        id: "2",
-        title: "Coding",
-        status: "doing",
-        priority: "low"
-    },
-    {
-        id: "3",
-        title: "Coding",
-        status: "done",
-        priority: "mid"
-    },
-]
+const listDom = document.getElementById("lista");
+const submitBtn = document.getElementById("submitbtn");
+const filterCheckboxes = document.querySelectorAll('input[type="checkbox"]');
 
-const renderTasks = (tasksRender)=>{
-    tasksRender.forEach(elem => {
-    const li = document.createElement("li")
-    li.innerHTML = `
-        <p>Zadanie: ${elem.title}</p>
-        <p>Priorytet: ${elem.priority}</p>
-        <label for="status-${elem.id}">Status: </label>
-        <select class="status-select" data-id="${elem.id}" id="status-${elem.id}">
-            <option value="new" ${elem.status === 'new' ? 'selected' : ''}>New</option>
-            <option value="doing" ${elem.status === 'doing' ? 'selected' : ''}>Doing</option>
-            <option value="done" ${elem.status === 'done' ? 'selected' : ''}>Done</option>
-        </select>
-    `
-    listDom.appendChild(li)
-}); 
-statusHandlers()
-visibleTasks(tasksRender,tasks)
+let tasks = [];
+
+try {
+    tasks = loadTasks();
+} catch (error) {
+    console.error("Nie udało się wczytać zgłoszeń:", error);
+    document.getElementById("errorContainer").textContent =
+        "Nie udało się odczytać zapisanych zgłoszeń!";
 }
+
+const renderTasks = (tasksRender) => {
+    tasksRender.forEach(elem => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <p>Zadanie: ${elem.title}</p>
+            <p>Priorytet: ${elem.priority}</p>
+            <label for="status-${elem.id}">Status: </label>
+            <select class="status-select" data-id="${elem.id}" id="status-${elem.id}">
+                <option value="new" ${elem.status === 'new' ? 'selected' : ''}>New</option>
+                <option value="doing" ${elem.status === 'doing' ? 'selected' : ''}>Doing</option>
+                <option value="done" ${elem.status === 'done' ? 'selected' : ''}>Done</option>
+            </select>
+        `;
+        listDom.appendChild(li);
+    });
+
+    statusHandlers();
+    visibleTasks(tasksRender, tasks);
+};
 
 function filtering() {
     const all = document.getElementById("all").checked;
@@ -56,12 +49,13 @@ function filtering() {
         if (task.status === "done" && done) return true;
         return false;
     });
-    document.getElementById("lista").innerHTML = "";
+
+    listDom.innerHTML = "";
     renderTasks(filteredTasks);
 }
 
-const addTask = (title,priority)=>{
-     if (!title || title.trim() === "") { 
+const addTask = (title, priority) => {
+    if (!title || title.trim() === "") {
         console.error("Title cant be empty");
         return;
     }
@@ -76,23 +70,27 @@ const addTask = (title,priority)=>{
         title,
         status: "new",
         priority
+    };
+
+    tasks.push(newTask);
+    saveTasks(tasks);
+
+    listDom.innerHTML = "";
+    filtering();
+};
+
+const changeStatus = (id, newStatus) => {
+    const task = tasks.find(task => task.id === id);
+
+    if (!task) {
+        console.error("NO such status");
+        return;
     }
 
-    tasks.push(newTask)
-    listDom.innerHTML = ""
-    filtering()
-}
-
-const changeStatus = (id,newStatus)=>{
-    const task = tasks.find(task=>task.id===id)
-
-    if(!task){
-        console.error("NO such status")
-    }
-    
-    task.status = newStatus
-    filtering()
-}
+    task.status = newStatus;
+    saveTasks(tasks);
+    filtering();
+};
 
 const statusHandlers = () => {
     const statusSelects = document.querySelectorAll(".status-select");
@@ -106,16 +104,16 @@ const statusHandlers = () => {
     });
 };
 
-const visibleTasks = (visible,tasks)=>{
-    const komunikat = document.getElementById("ilosc")
-    if(visible.length===0){
-        komunikat.innerText = "Brak pasujacych rekordow"
-    }
-    else{
-        komunikat.innerText = `Wyswietlono ${visible.length} z ${tasks.length} rekordow`
-    }
-}
+const visibleTasks = (visible, tasks) => {
+    const komunikat = document.getElementById("ilosc");
 
+    if (visible.length === 0) {
+        komunikat.innerText = "Brak pasujacych rekordow";
+    } else {
+        komunikat.innerText =
+            `Wyswietlono ${visible.length} z ${tasks.length} rekordow`;
+    }
+};
 
 filterCheckboxes.forEach(checkbox => {
     checkbox.addEventListener("change", (e) => {
@@ -135,22 +133,23 @@ filterCheckboxes.forEach(checkbox => {
         if (!isNew.checked && !doing.checked && !done.checked) {
             all.checked = true;
         }
+
         filtering();
     });
 });
 
-submitBtn.addEventListener("click",(e)=>{
-    e.preventDefault()
-    console.log("submit clicked");
-    const title = document.getElementById("title").value
-    const priority = document.getElementById("priority").value
-    const errorContainer = document.getElementById("errorContainer")
-    
-    if(errorContainer){
-        errorContainer.textContent = ""
+submitBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    const title = document.getElementById("title").value;
+    const priority = document.getElementById("priority").value;
+    const errorContainer = document.getElementById("errorContainer");
+
+    if (errorContainer) {
+        errorContainer.textContent = "";
     }
-    
-    try{
+
+    try {
         if (!title || title.trim() === "") {
             throw new Error("Wpisz tytuł zadania!");
         }
@@ -158,17 +157,18 @@ submitBtn.addEventListener("click",(e)=>{
         if (!priority || priority === "") {
             throw new Error("Wybierz poprawny priorytet z listy!");
         }
-        if(title.trim().length<3 || title.trim().length>80){
-            throw new Error("Tytuł musi miec od 3 do 80 znaków!")
+
+        if (title.trim().length < 3 || title.trim().length > 80) {
+            throw new Error("Tytuł musi mieć od 3 do 80 znaków!");
         }
-        addTask(title,priority)
-        document.getElementById("title").value = ""
-    }
-    catch(err){
+
+        addTask(title, priority);
+        document.getElementById("title").value = "";
+    } catch (err) {
         console.error("Error:", err.message);
         errorContainer.textContent = err.message;
         errorContainer.style.color = "red";
     }
-})
+});
 
-filtering()
+filtering();
