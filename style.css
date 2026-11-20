@@ -307,3 +307,31 @@ body.import-busy .import-container {
         padding: 12px;
     }
 }
+
+#errorContainer {
+    min-height: 16px;
+    padding: 0 2px;
+}
+
+#importStatus {
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+}
+
+#importStatus.success {
+    color: #238636;
+}
+
+#importStatus.error {
+    color: #de3b3b;
+}
+
+#importStatus.loading {
+    color: #666;
+}
+
+#importStatus:empty,
+#errorContainer:empty {
+    display: none;
+}
+
