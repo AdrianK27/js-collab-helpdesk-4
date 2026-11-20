@@ -8,7 +8,7 @@ const importStatus = document.getElementById("importStatus");
 const listDom = document.getElementById("lista");
 const submitBtn = document.getElementById("submitbtn");
 const filterCheckboxes = document.querySelectorAll('input[type="checkbox"]');
-
+const importLocalBtn = document.getElementById("importLocalBtn");
 let tasks = [];
 
 let isImporting = false;
@@ -237,5 +237,72 @@ importFile.addEventListener("change", async () => {
 
         importStatus.textContent = error.message;
         importStatus.style.color = "red";
+    }
+});
+
+async function loadLocalTasks() {
+    const response = await fetch("./tickets.json");
+
+    if (!response.ok) {
+        throw new Error(`Błąd HTTP: ${response.status}`);
+    }
+
+    return await response.json();
+}
+
+importLocalBtn.addEventListener("click", async () => {
+    if (isImporting) {
+        return;
+    }
+
+    isImporting = true;
+
+    submitBtn.disabled = true;
+    importFile.disabled = true;
+    importLocalBtn.disabled = true;
+
+    try {
+        const data = await loadLocalTasks();
+
+        const validatedTasks = validateTasks(data);
+
+        const confirmed = confirm(
+            "Czy na pewno chcesz zastąpić aktualną listę zgłoszeń?"
+        );
+
+        if (!confirmed) {
+            importStatus.textContent = "Import anulowany.";
+            return;
+        }
+
+        const previousTasks = tasks;
+        tasks = validatedTasks;
+
+        if (!saveTasks(tasks)) {
+            tasks = previousTasks;
+            throw new Error("Nie udało się zapisać danych!");
+        }
+
+        filtering();
+
+        importStatus.textContent =
+            `Import zakończony pomyślnie! Liczba zgłoszeń: ${tasks.length}`;
+
+        importStatus.style.color = "green";
+
+    } catch (error) {
+        console.error("Błąd importu:", error);
+
+        importStatus.textContent = error.message;
+        importStatus.style.color = "red";
+
+    } finally {
+        isImporting = false;
+
+        submitBtn.disabled = false;
+        importFile.disabled = false;
+        importLocalBtn.disabled = false;
+
+        statusHandlers();
     }
 });
