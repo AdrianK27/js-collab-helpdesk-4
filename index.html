@@ -10,19 +10,28 @@
 <body>
 
     <form id="taskForm">
-        <input type="text" name="title" id="title">
+        <label for="title">Tytuł zadania:</label>
+        <input
+            type="text"
+            name="title"
+            id="title"
+            minlength="3"
+            maxlength="80"
+            required
+        >
 
-        <select name="priority" id="priority">
+        <label for="priority">Priorytet:</label>
+        <select name="priority" id="priority" required>
             <option value="low">low</option>
-            <option value="normal">normal</option>
+            <option value="normal" selected>normal</option>
             <option value="high">high</option>
         </select>
 
         <input type="submit" id="submitbtn" value="Dodaj zadanie">
     </form>
 
-    <section class="import-container">
-        <h3>Import zgłoszeń</h3>
+    <section class="import-container" aria-labelledby="importHeading">
+        <h3 id="importHeading">Import zgłoszeń</h3>
 
         <label for="importFile">Wybierz plik JSON:</label>
 
@@ -30,6 +39,7 @@
             type="file"
             id="importFile"
             accept=".json,application/json"
+            aria-describedby="importStatus"
         >
 
         <button type="button" id="importLocalBtn">
@@ -39,21 +49,38 @@
         <p id="importStatus" role="status" aria-live="polite"></p>
     </section>
 
-    <div class="filters-container">
+    <div class="filters-container" aria-label="Filtrowanie zgłoszeń">
         <span>Filtry:</span>
-        <label><input id="all" type="checkbox" checked> All</label>
-        <label><input id="new" type="checkbox"> New</label>
-        <label><input id="doing" type="checkbox"> Doing</label>
-        <label><input id="done" type="checkbox"> Done</label>
+        <label>
+            <input id="all" type="checkbox" checked>
+            All
+        </label>
+        <label>
+            <input id="new" type="checkbox">
+            New
+        </label>
+        <label>
+            <input id="doing" type="checkbox">
+            Doing
+        </label>
+        <label>
+            <input id="done" type="checkbox">
+            Done
+        </label>
     </div>
 
-    <div class="errorContainer" id="errorContainer" role="alert"></div>
+    <div
+        class="errorContainer"
+        id="errorContainer"
+        role="alert"
+        aria-live="assertive"
+    ></div>
 
     <div class="komunikat" id="komunikat">
-        <p id="ilosc"></p>
+        <p id="ilosc" aria-live="polite"></p>
     </div>
 
-    <ul id="lista"></ul>
+    <ul id="lista" aria-label="Lista zgłoszeń"></ul>
 
     <script src="app.js" type="module"></script>
 
