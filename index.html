@@ -1,37 +1,60 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>Szkolny Helpdesk</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <form action="">
+
+    <form id="taskForm">
         <input type="text" name="title" id="title">
-        <select name="" id="priority">
+
+        <select name="priority" id="priority">
             <option value="low">low</option>
             <option value="normal">normal</option>
             <option value="high">high</option>
         </select>
-        
-        
 
-    <input type="submit" id="submitbtn">
-</form>
-<div class="filters-container">
-    <span>Filtry:</span>
-    <label><input id="all" type="checkbox" checked> All</label>
-    <label><input id="new" type="checkbox"> New</label>
-    <label><input id="doing" type="checkbox"> Doing</label>
-    <label><input id="done" type="checkbox"> Done</label>
-</div>
-<div class="errorContainer" id="errorContainer"></div>    
-<div class="komunikat" id="komunikat">
-    <p id="ilosc"></p>
-</div>
-    <div class="lista" id="lista">
+        <input type="submit" id="submitbtn" value="Dodaj zadanie">
+    </form>
+
+    <section class="import-container">
+        <h3>Import zgłoszeń</h3>
+
+        <label for="importFile">Wybierz plik JSON:</label>
+        <input
+            type="file"
+            id="importFile"
+            accept=".json,application/json"
+        >
+
+        <button type="button" id="importLocalBtn">
+            Importuj lokalny JSON
+        </button>
+
+        <p id="importStatus"></p>
+    </section>
+
+    <div class="filters-container">
+        <span>Filtry:</span>
+        <label><input id="all" type="checkbox" checked> All</label>
+        <label><input id="new" type="checkbox"> New</label>
+        <label><input id="doing" type="checkbox"> Doing</label>
+        <label><input id="done" type="checkbox"> Done</label>
     </div>
-    <script src="app.js" defer type="module"></script>
+
+    <div class="errorContainer" id="errorContainer"></div>
+
+    <div class="komunikat" id="komunikat">
+        <p id="ilosc"></p>
+    </div>
+
+    <ul id="lista"></ul>
+
+    <script src="app.js" type="module"></script>
+
 </body>
 </html>
