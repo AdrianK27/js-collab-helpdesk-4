@@ -241,8 +241,6 @@ body > label {
     color: #666;
 }
 
-/* Wygląd zablokowanych elementów */
-
 button:disabled,
 input:disabled,
 select:disabled {
@@ -254,4 +252,58 @@ body.import-busy form,
 body.import-busy .filters-container,
 body.import-busy .import-container {
     opacity: 0.7;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 15px;
+    }
+
+    form {
+        flex-wrap: wrap;
+    }
+
+    form label {
+        width: 100%;
+    }
+
+    input[type="text"],
+    form select {
+        width: 100%;
+    }
+
+    #submitbtn {
+        width: 100%;
+    }
+
+    .filters-container {
+        gap: 8px;
+    }
+
+    .filters-container label {
+        padding: 6px 10px;
+    }
+
+    #importFile {
+        width: 100%;
+    }
+
+    #importLocalBtn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 350px) {
+    body {
+        padding: 10px;
+    }
+
+    .filters-container {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    #lista li {
+        padding: 12px;
+    }
 }
