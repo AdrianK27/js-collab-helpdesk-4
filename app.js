@@ -1,17 +1,36 @@
 
 import { validateTasks } from "./domain.js";
 import { loadTasks, saveTasks } from "./storage.js";
-
+const exportBtn = document.getElementById("exportBtn");
 const importFile = document.getElementById("importFile");
 const importStatus = document.getElementById("importStatus");
-
+const taskForm = document.getElementById("taskForm");
 const listDom = document.getElementById("lista");
 const submitBtn = document.getElementById("submitbtn");
-const filterCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+const filterCheckboxes = document.querySelectorAll(
+    '.filters-container input[type="checkbox"]'
+);
 const importLocalBtn = document.getElementById("importLocalBtn");
 let tasks = [];
 
 let isImporting = false;
+
+function setImportBusy(busy) {
+    taskForm.querySelectorAll("input, select, button").forEach(element => {
+        element.disabled = busy;
+    });
+
+    filterCheckboxes.forEach(checkbox => {
+        checkbox.disabled = busy;
+    });
+
+    document.querySelectorAll(".status-select").forEach(select => {
+        select.disabled = busy;
+    });
+
+    importFile.disabled = busy;
+    importLocalBtn.disabled = busy;
+}
 
 try {
     tasks = loadTasks();
@@ -188,22 +207,18 @@ submitBtn.addEventListener("click", (e) => {
 filtering();
 
 
-importFile.addEventListener("change", async () => {
 
-    if (isImporting) {
-        return;
-    }
+async function importFrom(load) {
+    if (isImporting) return;
 
-    const file = importFile.files[0];
+    isImporting = true;
+    setImportBusy(true);
 
-    if (!file) {
-        return;
-    }
+    importStatus.textContent = "Trwa importowanie...";
+    importStatus.className = "loading";
 
     try {
-        const text = await file.text();
-
-        const data = JSON.parse(text);
+        const data = await load();
 
         const validatedTasks = validateTasks(data);
 
@@ -216,28 +231,41 @@ importFile.addEventListener("change", async () => {
             return;
         }
 
-        const previousTasks = tasks;
-
-        tasks = validatedTasks;
-
-        if (!saveTasks(tasks)) {
-            tasks = previousTasks;
+        if (!saveTasks(validatedTasks)) {
             throw new Error("Nie udało się zapisać danych!");
         }
 
+        tasks = validatedTasks;
         filtering();
 
-        importStatus.textContent = "Import zakończony pomyślnie!";
-        importStatus.style.color = "green";
+        importStatus.textContent =
+            `Import zakończony pomyślnie! Liczba zgłoszeń: ${tasks.length}`;
 
-        console.log("Poprawne zgłoszenia:", validatedTasks);
+        importStatus.className = "success";
 
     } catch (error) {
         console.error("Błąd importu:", error);
 
         importStatus.textContent = error.message;
-        importStatus.style.color = "red";
+        importStatus.className = "error";
+
+    } finally {
+        isImporting = false;
+        setImportBusy(false);
     }
+}
+
+importFile.addEventListener("change", async () => {
+    const file = importFile.files[0];
+
+    if (!file) return;
+
+    await importFrom(async () => {
+        const text = await file.text();
+        return JSON.parse(text);
+    });
+
+    importFile.value = "";
 });
 
 async function loadLocalTasks() {
@@ -250,59 +278,34 @@ async function loadLocalTasks() {
     return await response.json();
 }
 
-importLocalBtn.addEventListener("click", async () => {
-    if (isImporting) {
-        return;
+async function loadLocalTasks() {
+    const response = await fetch("./tickets.json");
+
+    if (!response.ok) {
+        throw new Error(`Błąd HTTP: ${response.status}`);
     }
 
-    isImporting = true;
+    return await response.json();
+}
 
-    submitBtn.disabled = true;
-    importFile.disabled = true;
-    importLocalBtn.disabled = true;
+importLocalBtn.addEventListener("click", () => {
+    importFrom(loadLocalTasks);
+});
 
-    try {
-        const data = await loadLocalTasks();
+exportBtn.addEventListener("click", () => {
+    const json = JSON.stringify(tasks, null, 4);
 
-        const validatedTasks = validateTasks(data);
+    const blob = new Blob([json], {
+        type: "application/json"
+    });
 
-        const confirmed = confirm(
-            "Czy na pewno chcesz zastąpić aktualną listę zgłoszeń?"
-        );
+    const url = URL.createObjectURL(blob);
 
-        if (!confirmed) {
-            importStatus.textContent = "Import anulowany.";
-            return;
-        }
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "tickets-backup.json";
 
-        const previousTasks = tasks;
-        tasks = validatedTasks;
+    link.click();
 
-        if (!saveTasks(tasks)) {
-            tasks = previousTasks;
-            throw new Error("Nie udało się zapisać danych!");
-        }
-
-        filtering();
-
-        importStatus.textContent =
-            `Import zakończony pomyślnie! Liczba zgłoszeń: ${tasks.length}`;
-
-        importStatus.style.color = "green";
-
-    } catch (error) {
-        console.error("Błąd importu:", error);
-
-        importStatus.textContent = error.message;
-        importStatus.style.color = "red";
-
-    } finally {
-        isImporting = false;
-
-        submitBtn.disabled = false;
-        importFile.disabled = false;
-        importLocalBtn.disabled = false;
-
-        statusHandlers();
-    }
+    URL.revokeObjectURL(url);
 });
