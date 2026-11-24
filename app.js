@@ -278,15 +278,6 @@ async function loadLocalTasks() {
     return await response.json();
 }
 
-async function loadLocalTasks() {
-    const response = await fetch("./tickets.json");
-
-    if (!response.ok) {
-        throw new Error(`Błąd HTTP: ${response.status}`);
-    }
-
-    return await response.json();
-}
 
 importLocalBtn.addEventListener("click", () => {
     importFrom(loadLocalTasks);
