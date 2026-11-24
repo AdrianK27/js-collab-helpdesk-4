@@ -100,11 +100,15 @@ const addTask = (title, priority) => {
         priority
     };
 
-    tasks.push(newTask);
-    saveTasks(tasks);
+ tasks.push(newTask);
 
-    listDom.innerHTML = "";
-    filtering();
+if (!saveTasks(tasks)) {
+    tasks.pop();
+    throw new Error("Nie udało się zapisać danych!");
+}
+
+listDom.innerHTML = "";
+filtering();
 };
 
 const changeStatus = (id, newStatus) => {
